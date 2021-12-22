@@ -1,10 +1,14 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using BuildRestApiNetCore.Models;
+using BuildRestApiNetCore.Database;
+using BuildRestApiNetCore.Services;
 
 namespace BuildRestApiNetCore.Controllers
 {
@@ -19,38 +23,45 @@ namespace BuildRestApiNetCore.Controllers
 
         private readonly ProductContext _context;
 
-        public ProductsController(ProductContext context, ILogger<ProductsController> logger)
+        private readonly AppDatabase _database;
+
+        private readonly ProductService _service;
+
+        public ProductsController(ProductContext context, ILogger<ProductsController> logger, AppDatabase database)
         {
             _context = context;
             _logger = logger;
+            _database = database;
+
+            _service = new ProductService(_database);
 
             _logger.LogDebug("NLog injected into ProductsController");
 
-            if(_context.Products.Any())
-                return;
+            // if(_context.Products.Any())
+            //     return;
             
-            ProductSeed.InitData(context);
+            // ProductSeed.InitData(context);
         }
 
         [HttpGet]
         [Route("")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public ActionResult<IQueryable<Product>> GetProducts([FromQuery] string? department, [FromQuery] ProductRequest request)
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery] string? department, [FromQuery] ProductRequest request)
         {
-            var result = _context.Products as IQueryable<Product>;
+            IEnumerable<Product> products = await _service.SelectAsync();
 
-            Response.Headers["x-total-count"] = result.Count().ToString();
+            Response.Headers["x-total-count"] = products.Count().ToString();
 
             if(!string.IsNullOrEmpty(department))
             {
                 _logger.LogInformation($"Filtering on department = {department}");
-                result = result.Where(p => p.Department.StartsWith(department, System.StringComparison.InvariantCultureIgnoreCase));
+                products = products.Where(p => p.Department.StartsWith(department, System.StringComparison.InvariantCultureIgnoreCase));
             }
 
             if(request.Limit >= 100)
                 _logger.LogInformation($"Requesting more then 100 products");
 
-            return Ok(result
+            return Ok(products
                 .OrderBy(p => p.ProductNumber)
                 .Skip(request.Offset)
                 .Take(request.Limit)

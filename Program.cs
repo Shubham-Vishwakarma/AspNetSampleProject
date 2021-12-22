@@ -1,11 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using BuildRestApiNetCore.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NLog.Web;
 using System;
+using System.Configuration;
+
+using BuildRestApiNetCore.Models;
+using BuildRestApiNetCore.Database;
 
 var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 logger.Debug("Init Main");
@@ -25,6 +28,9 @@ try
         opt.ReportApiVersions = true;
         opt.AssumeDefaultVersionWhenUnspecified = true;
     });
+
+    
+    builder.Services.AddTransient<AppDatabase>(_ => new AppDatabase(builder.Configuration["ConnectionStrings:DefaultConnection"]));
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
