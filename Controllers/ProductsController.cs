@@ -56,7 +56,7 @@ namespace BuildRestApiNetCore.Controllers
             if(request.Limit >= 100)
                 _logger.LogInformation($"Requesting more then 100 products");
 
-            return Ok(await _context.Book.Include(b => b.Publisher).ToListAsync());
+            return Ok(await _context.Publisher.Include(p => p.Books).ToListAsync());
         }
 
         // [HttpPost]

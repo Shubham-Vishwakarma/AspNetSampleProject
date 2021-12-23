@@ -17,8 +17,6 @@ namespace BuildRestApiNetCore.Models
     {
         public int ID { get; set; }
         public string Name { get; set; }
-
-        [JsonIgnore]
         public virtual ICollection<Book> Books { get; set; }
     }
 }
