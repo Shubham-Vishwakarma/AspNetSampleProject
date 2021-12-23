@@ -5,10 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NLog.Web;
 using System;
-using System.Configuration;
-
 using BuildRestApiNetCore.Models;
-using BuildRestApiNetCore.Database;
 
 var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 logger.Debug("Init Main");
@@ -19,8 +16,10 @@ try
 
     // Add services to the container.
 
-    builder.Services.AddDbContext<ProductContext>(options => 
-            options.UseInMemoryDatabase("Products"));
+    string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
+    builder.Services.AddDbContextPool<LibraryContext>(
+        options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+    );
 
     builder.Services.AddControllers().AddNewtonsoftJson();
 
@@ -30,8 +29,6 @@ try
     });
 
     
-    builder.Services.AddTransient<AppDatabase>(_ => new AppDatabase(builder.Configuration["ConnectionStrings:DefaultConnection"]));
-
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo{
