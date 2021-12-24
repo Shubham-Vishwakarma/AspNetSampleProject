@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 using Microsoft.Extensions.DependencyInjection;
 using NLog.Web;
 using System;
@@ -36,7 +35,7 @@ try
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo{
-        Title = "Products",
+        Title = "ShopBridge",
         Description = "The ultimate e-commerce store for all your needs",
         Version = "v1"
     }));
@@ -47,7 +46,7 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
-        app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Products v1"));
+        app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/swagger/v1/swagger.json", "ShopBridge v1"));
     }
 
     app.UseAuthorization();
