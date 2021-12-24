@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using BuildRestApiNetCore.Models;
-using BuildRestApiNetCore.Database;
 using BuildRestApiNetCore.Services;
 
 namespace BuildRestApiNetCore.Controllers
@@ -23,40 +22,24 @@ namespace BuildRestApiNetCore.Controllers
 
         private readonly ILogger<ProductsController> _logger;
 
-        private readonly LibraryContext _context;
+        private readonly ShopbridgeContext _context;
 
-        public ProductsController(LibraryContext context, ILogger<ProductsController> logger)
+        public ProductsController(ShopbridgeContext context, ILogger<ProductsController> logger)
         {
             _context = context;
             _logger = logger;
 
             _logger.LogDebug("NLog injected into ProductsController");
-
-            // if(_context.Products.Any())
-            //     return;
-            
-            // ProductSeed.InitData(context);
         }
 
         [HttpGet]
         [Route("")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts([FromQuery] string? department, [FromQuery] ProductRequest request)
+        public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
         {
-            IEnumerable<Book> books = _context.Book.ToList();
-
-            Response.Headers["x-total-count"] = books.Count().ToString();
-
-            // if(!string.IsNullOrEmpty(department))
-            // {
-            //     _logger.LogInformation($"Filtering on department = {department}");
-            //     products = products.Where(p => p.Department.StartsWith(department, System.StringComparison.InvariantCultureIgnoreCase));
-            // }
-
-            if(request.Limit >= 100)
-                _logger.LogInformation($"Requesting more then 100 products");
-
-            return Ok(await _context.Publisher.Include(p => p.Books).ToListAsync());
+            var products = await _context.Products.ToListAsync();
+            
+            return Ok(products);
         }
 
         // [HttpPost]

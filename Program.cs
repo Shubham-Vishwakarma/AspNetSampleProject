@@ -18,7 +18,7 @@ try
     // Add services to the container.
 
     string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
-    builder.Services.AddDbContextPool<LibraryContext>(
+    builder.Services.AddDbContextPool<ShopbridgeContext>(
         options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
     );
 

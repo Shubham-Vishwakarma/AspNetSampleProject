@@ -1,25 +1,21 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
-namespace BuildRestApiNetCore.Models 
+namespace BuildRestApiNetCore.Models
 {
-    public class Product
+    public partial class Product
     {
-        [Key]
-        [Required]
-        [Display(Name = "productNumber")]
-        public string ProductNumber { get; set; } = "";
+        public Product()
+        {
+            Items = new HashSet<Item>();
+        }
 
-        [Required]
-        [Display(Name = "name")]
-        public string Name { get; set; } = "";
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string Category { get; set; } = null!;
+        public int Price { get; set; }
+        public int Quantity { get; set; }
 
-        [Required]
-        [Range(10, 90)]
-        [Display(Name = "price")]
-        public double? Price { get; set; }
-
-        [Required]
-        [Display(Name = "department")]
-        public string Department { get; set; } = "";
+        public virtual ICollection<Item> Items { get; set; }
     }
 }
