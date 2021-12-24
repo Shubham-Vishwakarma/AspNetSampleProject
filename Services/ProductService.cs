@@ -1,65 +1,70 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-// using BuildRestApiNetCore.Database;
+using Microsoft.EntityFrameworkCore;
+using BuildRestApiNetCore.Models;
 
 namespace BuildRestApiNetCore.Services
 {
-    public class ProductService
+    public class ProductService : IService
     {
 
-        // private const string insertQuery = "insert into product ('productNumber', 'name', 'price', 'department') values (@productNumber, @name, @price, @department);";
-        // private const string selectQuery = "select productNumber, name, price, department from product;";
+        private readonly ShopbridgeContext _context;
 
-        // internal AppDatabase Database { get; set; }
+        public ProductService(ShopbridgeContext context)
+        {
+            _context = context;
+        }
 
-        // public ProductService(AppDatabase database)
-        // {
-        //     Database = database;
-        // }
+        public async Task<IEnumerable<Product>> GetProducts()
+        {
+            return await _context.Products.ToListAsync();
+        }
 
-        // public async Task InsertAsync(Product product)
-        // {
-        //     using( MySqlConnection connection = Database.Connection)
-        //     {
-        //         MySqlCommand command = connection.CreateCommand();
-        //         command.CommandText = insertQuery;
-        //         command.Parameters.AddWithValue("@productNumber", product.ProductNumber);
-            
-        //         await connection.OpenAsync();
-        //         await command.ExecuteNonQueryAsync();
-        //     }
-        // }
+        public async Task<Product?> GetProduct(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            return product;
+        }
 
-        // public async Task<IEnumerable<Product>> SelectAsync()
-        // {
-        //     LinkedList<Product> products = new LinkedList<Product>();
+        public async Task<Product> CreateProduct(Product product)
+        {
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
 
-        //     using(MySqlConnection connection = Database.Connection)
-        //     {
-        //         MySqlCommand command = connection.CreateCommand();
-        //         command.CommandText = selectQuery;
+            return product;
+        }
 
-        //         await connection.OpenAsync();
+        public async Task<Product> UpdateProduct(Product product)
+        {
+            _context.Entry(product).State = EntityState.Modified;
 
-        //         MySqlDataReader reader = await command.ExecuteReaderAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                    throw;
+            }
 
-        //         while(await reader.ReadAsync())
-        //         {
-        //             Product product = new Product {
-        //                 ProductNumber = reader.GetString("productNumber"),
-        //                 Name = reader.GetString("name"),
-        //                 Price = reader.GetDouble("price"),
-        //                 Department = reader.GetString("department")
-        //             };
+            return product;
+        }
 
-        //             products.AddLast(product);
-        //         }
+        public async Task DeleteProduct(int id)
+        {
+            var product = await GetProduct(id);
 
-        //         await reader.CloseAsync();
-        //     }
+            if(product == null)
+                return;
 
-        //     return products;
-        // }
+            await DeleteProduct(product);
+        }
+
+        public async Task DeleteProduct(Product product)
+        {
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+        }
     }
 }
