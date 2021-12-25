@@ -5,15 +5,23 @@ using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
 using BuildRestApiNetCore.Exceptions;
 
-namespace BuildRestApiNetCore.Services
+namespace BuildRestApiNetCore.Services.Products
 {
-    public class ProductService : IService
+    public class ProductService : IProductService
     {
         private readonly ShopbridgeContext _context;
 
         public ProductService(ShopbridgeContext context)
         {
             _context = context;
+        }
+
+        public string ServiceName 
+        {
+            get 
+            {
+                return "ProductService";
+            }
         }
 
         public async Task<IEnumerable<Product>> GetProducts()

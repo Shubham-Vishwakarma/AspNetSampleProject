@@ -1,12 +1,10 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
-using BuildRestApiNetCore.Services;
+using BuildRestApiNetCore.Services.Products;
 using BuildRestApiNetCore.Exceptions;
 
 namespace BuildRestApiNetCore.Controllers
@@ -15,7 +13,7 @@ namespace BuildRestApiNetCore.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ProductService _service;
+        private readonly IProductService _service;
 
         public ProductController(ShopbridgeContext context)
         {

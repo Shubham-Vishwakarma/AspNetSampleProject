@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
+using BuildRestApiNetCore.Exceptions;
+using BuildRestApiNetCore.Services.Customers;
 
 namespace BuildRestApiNetCore.Controllers
 {
@@ -14,63 +16,55 @@ namespace BuildRestApiNetCore.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        private readonly ShopbridgeContext _context;
+        private readonly ICustomerService _service;
 
         public CustomerController(ShopbridgeContext context)
         {
-            _context = context;
+            _service = new CustomerService(context);
         }
 
         // GET: api/Customer
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
         {
-            return await _context.Customers.ToListAsync();
+            var customers = await _service.GetCustomers();
+            return Ok(customers);
         }
 
         // GET: api/Customer/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
-
-            if (customer == null)
+            try
+            {
+                var customer = await _service.GetCustomer(id);
+                return Ok(customer);
+            }
+            catch(CustomerNotFoundException)
             {
                 return NotFound();
             }
-
-            return customer;
         }
 
         // PUT: api/Customer/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomer(int id, Customer customer)
+        public async Task<ActionResult<Customer>> PutCustomer(int id, Customer customer)
         {
             if (id != customer.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(customer).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var updatedCustomer = await _service.UpdateCustomer(customer);
+                return Ok(updatedCustomer);
             }
-            catch (DbUpdateConcurrencyException)
+            catch(CustomerNotFoundException)
             {
-                if (!CustomerExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NotFound();
             }
-
-            return NoContent();
         }
 
         // POST: api/Customer
@@ -78,31 +72,24 @@ namespace BuildRestApiNetCore.Controllers
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
+            var createdCustomer = await _service.CreateCustomer(customer);
+            return CreatedAtAction(nameof(GetCustomer), new { id = createdCustomer.Id }, createdCustomer);
         }
 
         // DELETE: api/Customer/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCustomer(int id)
+        public async Task<ActionResult<ResponseMessage>> DeleteCustomer(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
+            try
+            {
+                await _service.DeleteCustomer(id);
+                return Ok(new ResponseMessage("Delete Successfull"));
+            }
+            catch(CustomerNotFoundException)
             {
                 return NotFound();
             }
-
-            _context.Customers.Remove(customer);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
-        private bool CustomerExists(int id)
-        {
-            return _context.Customers.Any(e => e.Id == id);
-        }
     }
 }
