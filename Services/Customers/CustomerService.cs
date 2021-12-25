@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -91,5 +92,19 @@ namespace BuildRestApiNetCore.Services.Customers
             _context.Customers.Remove(customer);
             await _context.SaveChangesAsync();
         }
+
+
+        public async Task<Customer> GetCustomer(string email, string password)
+        {
+            var customer = await _context.Customers
+                                .Where(p => p.Email.Equals(email) && p.Password.Equals(password))
+                                .FirstOrDefaultAsync();
+
+            if(customer == null)
+                throw new CustomerNotFoundException("No customer can be found with the entered credentials");
+
+            return customer;
+        }
+
     }
 }

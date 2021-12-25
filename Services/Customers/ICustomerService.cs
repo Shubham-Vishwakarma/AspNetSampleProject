@@ -9,6 +9,7 @@ namespace BuildRestApiNetCore.Services.Customers
     {
         Task<IEnumerable<Customer>> GetCustomers();
         Task<Customer> GetCustomer(int id);
+        Task<Customer> GetCustomer(string email, string password);
         Task<Customer> CreateCustomer(Customer customer);
         Task<Customer> UpdateCustomer(Customer customer);
         Task DeleteCustomer(int id);

@@ -15,9 +15,9 @@ namespace BuildRestApiNetCore.Controllers
     {
         private readonly IProductService _service;
 
-        public ProductController(ShopbridgeContext context)
+        public ProductController(IProductService service)
         {
-            _service = new ProductService(context);
+            _service = service;
         }
 
         // GET: api/Product
