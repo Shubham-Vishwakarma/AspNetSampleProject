@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
+using BuildRestApiNetCore.Exceptions;
 
 namespace BuildRestApiNetCore.Services
 {
     public class ProductService : IService
     {
-
         private readonly ShopbridgeContext _context;
 
         public ProductService(ShopbridgeContext context)
@@ -21,9 +21,13 @@ namespace BuildRestApiNetCore.Services
             return await _context.Products.ToListAsync();
         }
 
-        public async Task<Product?> GetProduct(int id)
+        public async Task<Product> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
+
+            if(product == null)
+                throw new ProductNotFoundException($"No product found with id {id}");
+
             return product;
         }
 
@@ -45,7 +49,15 @@ namespace BuildRestApiNetCore.Services
             }
             catch (DbUpdateConcurrencyException)
             {
-                    throw;
+                try
+                {
+                    var p = GetProduct(product.Id);
+                }
+                catch(ProductNotFoundException ex)
+                {
+                    throw ex;
+                }
+                throw;
             }
 
             return product;
@@ -53,12 +65,15 @@ namespace BuildRestApiNetCore.Services
 
         public async Task DeleteProduct(int id)
         {
-            var product = await GetProduct(id);
-
-            if(product == null)
-                return;
-
-            await DeleteProduct(product);
+            try
+            {
+                var product = await GetProduct(id);
+                await DeleteProduct(product);
+            }
+            catch(ProductNotFoundException pnfe)
+            {
+                throw pnfe;
+            }
         }
 
         public async Task DeleteProduct(Product product)

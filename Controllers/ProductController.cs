@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
 using BuildRestApiNetCore.Services;
+using BuildRestApiNetCore.Exceptions;
 
 namespace BuildRestApiNetCore.Controllers
 {
@@ -33,29 +34,36 @@ namespace BuildRestApiNetCore.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var product = await _service.GetProduct(id);
-
-            if (product == null)
+            try
+            {
+                var product = await _service.GetProduct(id);
+                return Ok(product);
+            }
+            catch(ProductNotFoundException)
             {
                 return NotFound();
             }
-
-            return Ok(product);
         }
 
         // PUT: api/Product/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<ActionResult<Product>> PutProduct(int id, Product product)
         {
             if (id != product.Id)
             {
                 return BadRequest();
             }
 
-            var updatedProduct = await _service.UpdateProduct(product);
-
-            return Ok(updatedProduct);
+            try
+            {
+                var updatedProduct = await _service.UpdateProduct(product);
+                return Ok(updatedProduct);
+            }
+            catch(ProductNotFoundException)
+            {
+                return NotFound();
+            }  
         }
 
         // POST: api/Product
@@ -72,15 +80,15 @@ namespace BuildRestApiNetCore.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _service.GetProduct(id);
-            if (product == null)
+            try
+            {
+                await _service.DeleteProduct(id);
+                return Ok(new ResponseMessage("Delete Successfull"));
+            }
+            catch(ProductNotFoundException)
             {
                 return NotFound();
             }
-
-            await _service.DeleteProduct(product);
-
-            return Ok("Delete Successfull");
         }
 
     }
