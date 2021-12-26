@@ -7,7 +7,6 @@ namespace BuildRestApiNetCore.Models
 {
     public partial class ShopbridgeContext : DbContext
     {
-
         public ShopbridgeContext(DbContextOptions<ShopbridgeContext> options)
             : base(options)
         {

@@ -32,6 +32,7 @@ namespace BuildRestApiNetCore.Services.Customers
 
         public async Task<Customer> GetCustomer(int id)
         {
+            var c = _context.Customers;
             var customer = await _context.Customers.FindAsync(id);
             
             if(customer == null)

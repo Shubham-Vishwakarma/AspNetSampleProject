@@ -3,14 +3,16 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using NLog.Web;
 using System;
 using BuildRestApiNetCore.Models;
-using BuildRestApiNetCore.AuthHandlers;
 using BuildRestApiNetCore.Services.Auth;
 using BuildRestApiNetCore.Services.Customers;
 using BuildRestApiNetCore.Services.Products;
+using BuildRestApiNetCore.Middleware;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
 logger.Debug("Init Main");
@@ -20,20 +22,23 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     // Add services to the container.
-
-    // Add Database Connection
-    string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
-    builder.Services.AddDbContextPool<ShopbridgeContext>(
-        options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-    );
-
-    var appSettings = builder.Configuration.GetSection("AppSettings");
-    builder.Services.Configure<AppSettings>(appSettings);
+    var appSettingsSection = builder.Configuration.GetSection("AppSettings");
+    builder.Services.Configure<AppSettings>(appSettingsSection);
 
     builder.Services.AddScoped<ICustomerService, CustomerService>();
     builder.Services.AddScoped<IProductService, ProductService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
 
+    // Add Database Connection
+    string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
+    
+    builder.Services.AddDbContextPool<ShopbridgeContext>(
+        options => {
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString), mySqlOptionsAction: mysqlOptions => { mysqlOptions.EnableRetryOnFailure(); });
+        }
+    );
+
+    builder.Services.AddCors();
     builder.Services.AddControllers().AddNewtonsoftJson();
 
     builder.Services.AddApiVersioning(opt => {
@@ -53,6 +58,25 @@ try
         Version = "v1"
     }));
 
+
+    var key = Encoding.ASCII.GetBytes("TOP_SECRET_KEY_USED_FOR_SIGNING_AND_VERIYING_JWT_TOKENS");
+
+    builder.Services.AddAuthentication(x =>{
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    IssuerSigningKey = new SymmetricSecurityKey(key)
+                };
+            });
+
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -66,9 +90,9 @@ try
                         .AllowAnyMethod()
                         .AllowAnyHeader());
 
+    app.UseMiddleware<JwtMiddleWare>();
     app.UseAuthentication();
     app.UseAuthorization();
-
     app.MapControllers();
 
     app.Run();

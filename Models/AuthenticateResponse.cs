@@ -17,5 +17,13 @@ namespace BuildRestApiNetCore.Models
             Email = customer.Email;
             Token = token;
         }
+
+        public AuthenticateResponse(int id, string name, string email, string token)
+        {
+            Id = id;
+            Name = name;
+            Email = email;
+            Token = token;
+        }
     }
 }
