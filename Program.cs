@@ -3,8 +3,8 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using NLog.Web;
 using System;
 using BuildRestApiNetCore.Models;
 using BuildRestApiNetCore.Services.Auth;
@@ -14,13 +14,19 @@ using BuildRestApiNetCore.Services.Orders;
 using BuildRestApiNetCore.Middleware;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using NLog.Web;
+using NLog;
 
-var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("Init Main");
 
 try 
 {
     var builder = WebApplication.CreateBuilder(args);
+
+    builder.Logging.ClearProviders();
+    builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+    builder.Host.UseNLog();
 
     // Add services to the container.
     var appSettingsSection = builder.Configuration.GetSection("AppSettings");

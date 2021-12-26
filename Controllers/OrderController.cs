@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using BuildRestApiNetCore.Models;
 using Microsoft.AspNetCore.Authorization;
 using BuildRestApiNetCore.Services.Orders;
@@ -19,10 +19,13 @@ namespace BuildRestApiNetCore.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IOrderService _service;
+        private readonly ILogger<OrderController> _logger;
 
-        public OrderController(IOrderService service)
+        public OrderController(ILogger<OrderController> logger, IOrderService service)
         {
+            _logger = logger;
             _service = service;
+            _logger.LogDebug(1, "NLog injected into OrderController");
         }
 
         // GET: api/Order
@@ -32,6 +35,7 @@ namespace BuildRestApiNetCore.Controllers
             try
             {
                 var user = HttpContext.Items["User"] as AuthenticateResponse;
+                _logger.LogDebug(1, $"Fetching Orders for user id = {user.Id}");
                 var orders = await _service.GetOrders(user.Id);
                 return Ok(orders);
             }
