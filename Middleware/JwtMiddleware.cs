@@ -49,8 +49,8 @@ namespace BuildRestApiNetCore.Middleware
                 var jwtToken = (JwtSecurityToken)validateToken;
                 int userId;
                 int.TryParse(jwtToken.Claims.FirstOrDefault(x => x.Type == "Id")?.Value, out userId);
-                var userEmail = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
-                var userName = jwtToken.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name)?.Value;
+                var userEmail = jwtToken.Claims.FirstOrDefault(x => x.Type == "email")?.Value;
+                var userName = jwtToken.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value;
                 
                 if(userId == 0 || string.IsNullOrEmpty(userEmail) || string.IsNullOrEmpty(userName))
                     return;

@@ -29,8 +29,16 @@ namespace BuildRestApiNetCore.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            var orders = await _service.GetOrders(6);
-            return Ok(orders);
+            try
+            {
+                var user = HttpContext.Items["User"] as AuthenticateResponse;
+                var orders = await _service.GetOrders(user.Id);
+                return Ok(orders);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         // GET: api/Order/5
