@@ -10,6 +10,7 @@ using BuildRestApiNetCore.Models;
 
 namespace BuildRestApiNetCore.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -21,7 +22,6 @@ namespace BuildRestApiNetCore.Controllers
             _service = service;
         }
 
-        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<ActionResult<AuthenticateResponse>> Login(AuthenticateRequest request)
         {

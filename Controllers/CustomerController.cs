@@ -9,9 +9,11 @@ using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
 using BuildRestApiNetCore.Exceptions;
 using BuildRestApiNetCore.Services.Customers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BuildRestApiNetCore.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CustomerController : ControllerBase

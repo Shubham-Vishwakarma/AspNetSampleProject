@@ -8,41 +8,44 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using BuildRestApiNetCore.Services.Orders;
+using BuildRestApiNetCore.Exceptions;
 
 namespace BuildRestApiNetCore.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private readonly ShopbridgeContext _context;
+        private readonly IOrderService _service;
 
-        public OrderController(ShopbridgeContext context)
+        public OrderController(IOrderService service)
         {
-            _context = context;
+            _service = service;
         }
 
         // GET: api/Order
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
-            return await _context.Orders.ToListAsync();
+            var orders = await _service.GetOrders(6);
+            return Ok(orders);
         }
 
         // GET: api/Order/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-
-            if (order == null)
+            try
+            {
+                var order = await _service.GetOrder(id);
+                return Ok(order);
+            }
+            catch(OrderNotFoundException)
             {
                 return NotFound();
             }
-
-            return order;
         }
 
         // PUT: api/Order/5
@@ -55,25 +58,15 @@ namespace BuildRestApiNetCore.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(order).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var updatedOrder = await _service.UpdateOrder(order);
+                return Ok(updatedOrder);
             }
-            catch (DbUpdateConcurrencyException)
+            catch
             {
-                if (!OrderExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return NoContent();
             }
-
-            return NoContent();
         }
 
         // POST: api/Order
@@ -81,31 +74,23 @@ namespace BuildRestApiNetCore.Controllers
         [HttpPost]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
+            var createdOrder = await _service.CreateOrder(order);
+            return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
         }
 
         // DELETE: api/Order/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            try
             {
-                return NotFound();
+                await _service.DeleteOrder(id);
+                return Ok(new { message = "Delete Successfull" });
             }
-
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool OrderExists(int id)
-        {
-            return _context.Orders.Any(e => e.OrderId == id);
+            catch(OrderNotFoundException)
+            {
+                return NoContent();
+            }
         }
     }
 }

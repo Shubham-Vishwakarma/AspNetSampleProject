@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using BuildRestApiNetCore.Models;
 using BuildRestApiNetCore.Services.Products;
 using BuildRestApiNetCore.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BuildRestApiNetCore.Controllers
 {
@@ -43,8 +44,10 @@ namespace BuildRestApiNetCore.Controllers
             }
         }
 
+
         // PUT: api/Product/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult<Product>> PutProduct(int id, Product product)
         {
@@ -64,8 +67,10 @@ namespace BuildRestApiNetCore.Controllers
             }  
         }
 
+
         // POST: api/Product
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
@@ -75,6 +80,7 @@ namespace BuildRestApiNetCore.Controllers
         }
 
         // DELETE: api/Product/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {

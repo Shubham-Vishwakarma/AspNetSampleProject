@@ -10,6 +10,7 @@ using BuildRestApiNetCore.Models;
 using BuildRestApiNetCore.Services.Auth;
 using BuildRestApiNetCore.Services.Customers;
 using BuildRestApiNetCore.Services.Products;
+using BuildRestApiNetCore.Services.Orders;
 using BuildRestApiNetCore.Middleware;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -28,6 +29,7 @@ try
     builder.Services.AddScoped<ICustomerService, CustomerService>();
     builder.Services.AddScoped<IProductService, ProductService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IOrderService, OrderService>();
 
     // Add Database Connection
     string connectionString = builder.Configuration["ConnectionStrings:DefaultConnection"];
