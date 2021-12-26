@@ -8,6 +8,7 @@ using NLog.Web;
 using System;
 using BuildRestApiNetCore.Models;
 using BuildRestApiNetCore.AuthHandlers;
+using BuildRestApiNetCore.Services.Auth;
 using BuildRestApiNetCore.Services.Customers;
 using BuildRestApiNetCore.Services.Products;
 
@@ -26,8 +27,12 @@ try
         options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
     );
 
+    var appSettings = builder.Configuration.GetSection("AppSettings");
+    builder.Services.Configure<AppSettings>(appSettings);
+
     builder.Services.AddScoped<ICustomerService, CustomerService>();
     builder.Services.AddScoped<IProductService, ProductService>();
+    builder.Services.AddScoped<IAuthService, AuthService>();
 
     builder.Services.AddControllers().AddNewtonsoftJson();
 
@@ -48,9 +53,6 @@ try
         Version = "v1"
     }));
 
-    builder.Services.AddAuthentication("BasicAuthentication")
-                    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-
     var app = builder.Build();
 
     // Configure the HTTP request pipeline.
@@ -59,6 +61,10 @@ try
         app.UseSwagger();
         app.UseSwaggerUI(opt => opt.SwaggerEndpoint("/swagger/v1/swagger.json", "ShopBridge v1"));
     }
+
+    app.UseCors(x => x.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
 
     app.UseAuthentication();
     app.UseAuthorization();
