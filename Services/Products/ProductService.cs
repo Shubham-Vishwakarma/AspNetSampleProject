@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using BuildRestApiNetCore.Models;
+using BuildRestApiNetCore.Models.DTO;
 using BuildRestApiNetCore.Exceptions;
 
 namespace BuildRestApiNetCore.Services.Products
@@ -27,6 +29,11 @@ namespace BuildRestApiNetCore.Services.Products
         public async Task<IEnumerable<Product>> GetProducts()
         {
             return await _context.Products.ToListAsync();
+        }
+
+        public async Task<IEnumerable<ProductDTO>> GetProductDTOs()
+        {
+            return await _context.Products.Select(product => new ProductDTO(product)).ToListAsync();
         }
 
         public async Task<Product> GetProduct(int id)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using BuildRestApiNetCore.Models;
+using BuildRestApiNetCore.Models.DTO;
 using BuildRestApiNetCore.Services.Products;
 using BuildRestApiNetCore.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -23,9 +24,9 @@ namespace BuildRestApiNetCore.Controllers
 
         // GET: api/Product
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
         {
-            var products = await _service.GetProducts();
+            var products = await _service.GetProductDTOs();
             return Ok(products);
         }
 
