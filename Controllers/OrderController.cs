@@ -30,13 +30,13 @@ namespace BuildRestApiNetCore.Controllers
 
         // GET: api/Order
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
+        public async Task<ActionResult<IEnumerable<OrderDTO>>> GetOrders()
         {
             try
             {
                 var user = HttpContext.Items["User"] as AuthenticateResponse;
                 _logger.LogDebug(1, $"Fetching Orders for user id = {user.Id}");
-                var orders = await _service.GetOrders(user.Id);
+                var orders = await _service.GetOrderDTOs(user.Id);
                 return Ok(orders);
             }
             catch

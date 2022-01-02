@@ -36,6 +36,18 @@ namespace BuildRestApiNetCore.Services.Orders
             return orders;
         }
 
+        public async Task<IEnumerable<OrderDTO>> GetOrderDTOs(int customerId)
+        {
+            var orders = await _context.Orders
+                            .Where(o => o.CustomerId == customerId)
+                            .Include(o => o.Items)
+                            .ThenInclude(i => i.Product)
+                            .Select(o => new OrderDTO(o))
+                            .ToListAsync();
+
+            return orders;
+        }
+
         public async Task<Order> GetOrder(int id)
         {
             var order = await _context.Orders.FindAsync(id);

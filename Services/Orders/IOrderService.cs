@@ -8,6 +8,7 @@ namespace BuildRestApiNetCore.Services.Orders
     public interface IOrderService : IService
     {
         Task<IEnumerable<Order>> GetOrders(int customerId);
+        Task<IEnumerable<OrderDTO>> GetOrderDTOs(int customerId);
         Task<Order> GetOrder(int id);
         Task<Order> CreateOrder(Order order);
         Task<Order> UpdateOrder(Order order);
