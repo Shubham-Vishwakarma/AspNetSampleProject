@@ -84,9 +84,9 @@ namespace BuildRestApiNetCore.Controllers
         // POST: api/Order
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(Order order)
+        public async Task<ActionResult<Order>> PostOrder(OrderPost orderPost)
         {
-            var createdOrder = await _service.CreateOrder(order);
+            var createdOrder = await _service.CreateOrder(orderPost);
             return CreatedAtAction(nameof(GetOrder), new { id = createdOrder.OrderId }, createdOrder);
         }
 

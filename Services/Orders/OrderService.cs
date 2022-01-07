@@ -68,8 +68,20 @@ namespace BuildRestApiNetCore.Services.Orders
             return order;
         }
         
-        public async Task<Order> CreateOrder(Order order)
+        public async Task<Order> CreateOrder(OrderPost orderPost)
         {
+            Order order = new Order();
+            order.OrderDate = DateTime.Now;
+            order.CustomerId = orderPost.CustomerId;
+            foreach(ItemPost itemPost in orderPost.Items)
+            {
+                Item item = new Item();
+                item.ProductId = itemPost.ProductId;
+                item.ProductQuantity = itemPost.ProductQuantity;
+                item.ProductPrice = itemPost.ProductPrice;
+                order.Items.Add(item);
+            }
+
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
             return order;
