@@ -14,5 +14,6 @@ namespace BuildRestApiNetCore.Services.Customers
         Task<Customer> UpdateCustomer(Customer customer);
         Task DeleteCustomer(int id);
         Task DeleteCustomer(Customer customer);
+        Task<Boolean> CustomerExists(string email);
     }
 }

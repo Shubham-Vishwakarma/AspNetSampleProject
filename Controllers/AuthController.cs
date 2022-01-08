@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using BuildRestApiNetCore.Services.Auth;
 using BuildRestApiNetCore.Models;
+using BuildRestApiNetCore.Exceptions;
 
 namespace BuildRestApiNetCore.Controllers
 {
@@ -33,6 +34,24 @@ namespace BuildRestApiNetCore.Controllers
             catch
             {
                 return BadRequest(new { message = "Username or password is incorrect" });
+            }
+        }
+
+        [HttpPost("register")]
+        public async Task<ActionResult<AuthenticateResponse>> Register(RegisterRequest request)
+        {
+            try
+            {
+                var user = await _service.RegisterUser(request);
+                return Ok(user);
+            }
+            catch(CustomerDuplicateException)
+            {
+                return BadRequest(new { message = "User with email id alread exists" });
+            }
+            catch
+            {
+                return BadRequest(new { message = "Something went wrong" });
             }
         }
     }

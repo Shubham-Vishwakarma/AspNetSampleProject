@@ -107,5 +107,17 @@ namespace BuildRestApiNetCore.Services.Customers
             return customer;
         }
 
+        public async Task<Boolean> CustomerExists(string email)
+        {
+            var customer = await _context.Customers
+                    .Where(p => p.Email.Equals(email))
+                    .FirstOrDefaultAsync();
+
+            if(customer != null)
+                throw new CustomerDuplicateException("Customer with email id already present");
+
+            return false;
+        }
+
     }
 }

@@ -35,6 +35,22 @@ namespace BuildRestApiNetCore.Services.Auth
             return new AuthenticateResponse(user, token);
         }
 
+        public async Task<AuthenticateResponse> RegisterUser(RegisterRequest request)
+        {
+            bool found = await _customerService.CustomerExists(request.Email);
+
+            Customer customer = new Customer();
+            customer.Name = request.Name;
+            customer.Email = request.Email;
+            customer.Password = request.Password;
+
+            customer = await _customerService.CreateCustomer(customer);
+
+            var token = GenerateJwtToken(customer);
+
+            return new AuthenticateResponse(customer, token);
+        }
+
         private string GenerateJwtToken(Customer user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
