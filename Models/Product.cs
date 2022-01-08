@@ -15,6 +15,7 @@ namespace BuildRestApiNetCore.Models
         public string Category { get; set; } = null!;
         public int Price { get; set; }
         public int Quantity { get; set; }
+        public string Image { get; set; } = null!;
 
         public virtual ICollection<Item> Items { get; set; }
     }

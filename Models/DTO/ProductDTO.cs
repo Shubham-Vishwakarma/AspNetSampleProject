@@ -15,6 +15,7 @@ namespace BuildRestApiNetCore.Models.DTO
             Category = product.Category;
             Price = product.Price;
             Quantity = product.Quantity;
+            Image = product.Image;
         }
 
         public int Id { get; set; }
@@ -22,6 +23,7 @@ namespace BuildRestApiNetCore.Models.DTO
         public string Category { get; set; } = null!;
         public int Price { get; set; }
         public int Quantity { get; set; }
+        public string Image { get; set; } = null!;
 
     }
 }

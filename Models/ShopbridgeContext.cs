@@ -111,6 +111,10 @@ namespace BuildRestApiNetCore.Models
                 entity.Property(e => e.Price).HasColumnName("price");
 
                 entity.Property(e => e.Quantity).HasColumnName("quantity");
+
+                entity.Property(e => e.Image)
+                    .HasMaxLength(1000)
+                    .HasColumnName("image");
             });
 
             OnModelCreatingPartial(modelBuilder);
