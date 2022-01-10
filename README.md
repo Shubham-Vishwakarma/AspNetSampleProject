@@ -4,6 +4,25 @@ Rest API using .Net 6
 ### ER Diagram
 ![ShopBridge](ShopBridge.png)
 
+### How to Run
+Clone the repo
+```
+git clone https://github.com/Shubham-Vishwakarma/ShopBridge
+```
+
+Setup the database (File present at: [database.sql](https://github.com/Shubham-Vishwakarma/ShopBridge/blob/main/Schema/dbexport.sql))
+```
+mysql> create database shopbridge;
+mysql> use shopbridge;
+mysql> source database.sql;
+```
+
+Run the REST API
+```
+dotnet build
+dotnet run
+```
+
 ### Reference: 
 * https://www.red-gate.com/simple-talk/development/dotnet-development/build-a-rest-api-in-net-core/
 * https://www.c-sharpcorner.com/article/tutorial-use-entity-framework-core-5-0-in-net-core-3-1-with-mysql-database-by2/
